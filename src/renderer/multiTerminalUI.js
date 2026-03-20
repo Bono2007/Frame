@@ -159,7 +159,15 @@ class MultiTerminalUI {
     contentArea.className = 'tab-content-area';
     contentArea.style.height = '100%';
     contentArea.style.width = '100%';
+    contentArea.style.position = 'relative';
     this.contentContainer.appendChild(contentArea);
+
+    const scrollBtn = document.createElement('button');
+    scrollBtn.className = 'btn-scroll-bottom-overlay';
+    scrollBtn.title = 'Scroll to bottom';
+    scrollBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+    scrollBtn.addEventListener('click', () => this.manager.scrollActiveToBottom());
+    contentArea.appendChild(scrollBtn);
 
     // Check if there are any terminals for current project
     if (state.terminals.length === 0) {

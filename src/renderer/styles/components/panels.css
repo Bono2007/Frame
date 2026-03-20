@@ -591,23 +591,6 @@
   font-size: 12px;
 }
 
-.btn-tasks-toggle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-md) !important;
-  background: var(--bg-tertiary) !important;
-  border: 1px solid var(--border-subtle) !important;
-  font-size: 11px !important;
-  font-weight: 500;
-  margin-left: var(--space-sm);
-}
-
-.btn-tasks-toggle:hover {
-  background: var(--accent-subtle) !important;
-  border-color: var(--accent-primary) !important;
-  color: var(--accent-primary) !important;
-}
 
 
 /* ==================== PLUGINS PANEL STYLES ==================== */

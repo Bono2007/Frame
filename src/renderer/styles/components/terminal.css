@@ -130,15 +130,25 @@
   border: none;
   color: var(--text-tertiary);
   cursor: pointer;
-  padding: var(--space-xs) var(--space-sm);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--radius-sm);
-  font-size: 14px;
   transition: all var(--transition-fast);
 }
 
 .terminal-tab-actions button:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
+}
+
+.terminal-tab-actions button svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .terminal-tab-actions button:disabled {
@@ -151,7 +161,8 @@
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   cursor: pointer;
-  padding: var(--space-xs) var(--space-sm);
+  height: 32px;
+  padding: 0 var(--space-sm);
   border-radius: var(--radius-sm);
   font-family: var(--font-sans);
   font-size: 11px;
@@ -261,6 +272,39 @@
   overflow: hidden;
   background: var(--bg-primary);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.btn-scroll-bottom-overlay {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 20;
+  width: 28px;
+  height: 28px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  opacity: 0.75;
+}
+
+.btn-scroll-bottom-overlay:hover {
+  opacity: 1;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* In grid cells, account for resizer handles */
+.btn-scroll-bottom-cell {
+  bottom: 12px;
+  right: 12px;
 }
 
 .terminal-content.tab-view .tab-content-area {
