@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "Claude Code IDE - Module structure and IPC communication map",
-  "lastUpdated": "2026-03-19",
+  "lastUpdated": "2026-03-20",
   "architecture": {
     "type": "electron",
     "mainProcess": "src/main/index.js",
@@ -1997,9 +1997,18 @@
         "tasksPanel",
         "pluginsPanel",
         "githubPanel",
-        "promptsPanel"
+        "promptsPanel",
+        "lucide"
       ],
-      "functions": {},
+      "functions": {
+        "lucideIcon": {
+          "line": 14,
+          "params": [
+            "data",
+            "size = 18"
+          ]
+        }
+      },
       "ipc": {
         "listens": [
           "CLAUDE_USAGE_DATA"

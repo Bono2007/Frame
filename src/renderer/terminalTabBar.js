@@ -9,6 +9,15 @@ const tasksPanel = require('./tasksPanel');
 const pluginsPanel = require('./pluginsPanel');
 const githubPanel = require('./githubPanel');
 const promptsPanel = require('./promptsPanel');
+const { Plus, LayoutGrid, MoreHorizontal, Square } = require('lucide');
+
+function lucideIcon(data, size = 18) {
+  const children = data.map(([tag, attrs]) => {
+    const attrStr = Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ');
+    return `<${tag} ${attrStr}/>`;
+  }).join('');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex-shrink:0">${children}</svg>`;
+}
 
 class TerminalTabBar {
   constructor(container, manager) {
@@ -17,12 +26,14 @@ class TerminalTabBar {
     this.element = null;
     this.contextMenu = null;
     this.shellMenu = null;
+    this.moreMenu = null;
     this.availableShells = [];
     this.onOverviewToggle = null; // Callback for overview toggle
     this._injectStyles();
     this._render();
     this._createContextMenu();
     this._createShellMenu();
+    this._createMoreMenu();
     this._loadAvailableShells();
     this._initTheme();
   }
@@ -88,6 +99,47 @@ class TerminalTabBar {
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
+        .more-menu {
+          min-width: 160px;
+        }
+        .more-menu-item {
+          padding: 7px 12px;
+          font-size: 12px;
+          color: var(--text-primary);
+          cursor: pointer;
+          border-radius: var(--radius-sm);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: background var(--transition-fast);
+          font-weight: 500;
+        }
+        .more-menu-item:hover {
+          background: var(--bg-hover);
+        }
+        .more-menu-item svg {
+          opacity: 0.7;
+          flex-shrink: 0;
+        }
+        .more-menu-item.active {
+          color: var(--accent-primary);
+        }
+        .more-menu-item.active svg {
+          opacity: 1;
+        }
+        .more-menu-divider {
+          height: 1px;
+          background: var(--border-subtle);
+          margin: 4px 0;
+        }
+        .btn-more-toggle {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .btn-more-toggle.active {
+          color: var(--accent-primary) !important;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -133,13 +185,12 @@ class TerminalTabBar {
             <span class="usage-reset"></span>
           </div>
         </div>
-        <button class="btn-scroll-bottom" title="Scroll to bottom">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+        <button class="btn-new-terminal" title="New Terminal - Click to select shell, Right-click for default">
+          ${lucideIcon(Plus)}
         </button>
-        <button class="btn-new-terminal" title="New Terminal - Click to select shell, Right-click for default">+</button>
-        <button class="btn-view-toggle" title="Toggle Grid View">⊞</button>
+        <button class="btn-view-toggle" title="Toggle Grid View">
+          ${lucideIcon(LayoutGrid)}
+        </button>
         <select class="grid-layout-select" title="Grid Layout">
           <option value="1x2">1×2</option>
           <option value="1x3">1×3</option>
@@ -150,55 +201,8 @@ class TerminalTabBar {
           <option value="3x2">3×2</option>
           <option value="3x3">3×3</option>
         </select>
-        <button class="btn-tasks-toggle" title="Toggle Tasks Panel (Ctrl+Shift+T)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 11l3 3L22 4"/>
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-          </svg>
-          Tasks
-        </button>
-        <button class="btn-plugins-toggle" title="Toggle Claude Panel (Ctrl+Shift+P)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-          </svg>
-          Claude
-        </button>
-        <button class="btn-github-toggle" title="Toggle GitHub Panel">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
-          </svg>
-          GitHub
-        </button>
-        <button class="btn-prompts-toggle" title="Toggle Prompts Panel (Ctrl+Shift+L)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          Prompts
-        </button>
-        <button class="btn-overview-toggle" title="Project Overview">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
-          Overview
-        </button>
-        <button class="btn-theme-toggle" title="Toggle Light/Dark Theme">
-          <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-          <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
+        <button class="btn-more-toggle" title="More panels">
+          ${lucideIcon(MoreHorizontal)}
         </button>
       </div>
     `;
@@ -253,7 +257,7 @@ class TerminalTabBar {
 
     // Update view toggle button
     const toggleBtn = this.element.querySelector('.btn-view-toggle');
-    toggleBtn.textContent = state.viewMode === 'tabs' ? '⊞' : '☐';
+    toggleBtn.innerHTML = state.viewMode === 'tabs' ? lucideIcon(LayoutGrid) : lucideIcon(Square);
     toggleBtn.title = state.viewMode === 'tabs' ? 'Switch to Grid View' : 'Switch to Tab View';
 
     // Show/hide grid layout selector
@@ -329,46 +333,27 @@ class TerminalTabBar {
       this.manager.setGridLayout(e.target.value);
     });
 
-    // Scroll to bottom button
-    this.element.querySelector('.btn-scroll-bottom').addEventListener('click', () => {
-      this.manager.scrollActiveToBottom();
-    });
-
-    // Tasks toggle button
-    this.element.querySelector('.btn-tasks-toggle').addEventListener('click', () => {
-      tasksPanel.toggle();
-    });
-
-    // Plugins toggle button
-    this.element.querySelector('.btn-plugins-toggle').addEventListener('click', () => {
-      pluginsPanel.toggle();
-    });
-
-    // GitHub toggle button
-    this.element.querySelector('.btn-github-toggle').addEventListener('click', () => {
-      githubPanel.toggle();
-    });
-
-    // Prompts toggle button
-    this.element.querySelector('.btn-prompts-toggle').addEventListener('click', () => {
-      promptsPanel.toggle();
-    });
-
     // Usage bars click to refresh
     this.element.querySelector('.claude-usage-bars').addEventListener('click', () => {
       ipcRenderer.send(IPC.REFRESH_CLAUDE_USAGE);
     });
 
-    // Overview toggle button
-    this.element.querySelector('.btn-overview-toggle').addEventListener('click', () => {
-      if (this.onOverviewToggle) {
-        this.onOverviewToggle();
+    // More menu toggle button
+    const moreBtn = this.element.querySelector('.btn-more-toggle');
+    moreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (this.moreMenu.classList.contains('visible')) {
+        this._hideMoreMenu();
+      } else {
+        moreBtn.classList.add('active');
+        const rect = moreBtn.getBoundingClientRect();
+        this._showMoreMenu(rect.right, rect.bottom + 4);
+        // Reposition to align right edge
+        requestAnimationFrame(() => {
+          const menuRect = this.moreMenu.getBoundingClientRect();
+          this.moreMenu.style.left = `${rect.right - menuRect.width}px`;
+        });
       }
-    });
-
-    // Theme toggle button
-    this.element.querySelector('.btn-theme-toggle').addEventListener('click', () => {
-      this._toggleTheme();
     });
 
     // Setup usage bar IPC listener
@@ -610,6 +595,110 @@ class TerminalTabBar {
     }, true);
   }
 
+  _createMoreMenu() {
+    this.moreMenu = document.createElement('div');
+    this.moreMenu.className = 'terminal-context-menu more-menu';
+    document.body.appendChild(this.moreMenu);
+
+    document.addEventListener('click', (e) => {
+      if (!this.moreMenu.contains(e.target) && !e.target.closest('.btn-more-toggle')) {
+        this._hideMoreMenu();
+      }
+    });
+
+    document.addEventListener('scroll', () => {
+      this._hideMoreMenu();
+    }, true);
+  }
+
+  _showMoreMenu(x, y) {
+    this.moreMenu.innerHTML = '';
+
+    const items = [
+      {
+        label: 'Tasks',
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+        action: () => tasksPanel.toggle(),
+        key: 'tasks'
+      },
+      {
+        label: 'Claude',
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+        action: () => pluginsPanel.toggle(),
+        key: 'claude'
+      },
+      {
+        label: 'GitHub',
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`,
+        action: () => githubPanel.toggle(),
+        key: 'github'
+      },
+      {
+        label: 'Prompts',
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+        action: () => promptsPanel.toggle(),
+        key: 'prompts'
+      },
+      {
+        label: 'Overview',
+        icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
+        action: () => { if (this.onOverviewToggle) this.onOverviewToggle(); },
+        key: 'overview'
+      },
+    ];
+
+    items.forEach(({ label, icon, action }) => {
+      const item = document.createElement('div');
+      item.className = 'more-menu-item';
+      item.innerHTML = `${icon}<span>${label}</span>`;
+      item.addEventListener('click', () => {
+        action();
+        this._hideMoreMenu();
+      });
+      this.moreMenu.appendChild(item);
+    });
+
+    // Divider + Theme toggle
+    const divider = document.createElement('div');
+    divider.className = 'more-menu-divider';
+    this.moreMenu.appendChild(divider);
+
+    const themeItem = document.createElement('div');
+    themeItem.className = 'more-menu-item';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const themeLabel = currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    const themeIcon = currentTheme === 'dark'
+      ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+      : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+    themeItem.innerHTML = `${themeIcon}<span>${themeLabel}</span>`;
+    themeItem.addEventListener('click', () => {
+      this._toggleTheme();
+      this._hideMoreMenu();
+    });
+    this.moreMenu.appendChild(themeItem);
+
+    this.moreMenu.style.left = `${x}px`;
+    this.moreMenu.style.top = `${y}px`;
+    this.moreMenu.classList.add('visible');
+
+    // Adjust if out of bounds
+    const rect = this.moreMenu.getBoundingClientRect();
+    if (rect.right > window.innerWidth) {
+      this.moreMenu.style.left = `${window.innerWidth - rect.width - 5}px`;
+    }
+    if (rect.bottom > window.innerHeight) {
+      this.moreMenu.style.top = `${y - rect.height}px`;
+    }
+  }
+
+  _hideMoreMenu() {
+    if (this.moreMenu) {
+      this.moreMenu.classList.remove('visible');
+    }
+    const btn = this.element && this.element.querySelector('.btn-more-toggle');
+    if (btn) btn.classList.remove('active');
+  }
+
   async _loadAvailableShells() {
     try {
       this.availableShells = await this.manager.getAvailableShells();
@@ -726,35 +815,18 @@ class TerminalTabBar {
   }
 
   /**
-   * Update theme button icon based on current theme
+   * Update theme button icon based on current theme (no-op: theme icon is in the more menu)
    */
-  _updateThemeButton(theme) {
-    const btn = this.element.querySelector('.btn-theme-toggle');
-    if (!btn) return;
-    const sun = btn.querySelector('.icon-sun');
-    const moon = btn.querySelector('.icon-moon');
-    if (theme === 'light') {
-      sun.style.display = 'none';
-      moon.style.display = 'block';
-    } else {
-      sun.style.display = 'block';
-      moon.style.display = 'none';
-    }
+  _updateThemeButton(_theme) {
+    // Theme icon is rendered dynamically in the more menu; nothing to update here
   }
 
   /**
    * Set overview button active state
    * @param {boolean} active - Whether overview is active
    */
-  setOverviewActive(active) {
-    const btn = this.element.querySelector('.btn-overview-toggle');
-    if (btn) {
-      if (active) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    }
+  setOverviewActive(_active) {
+    // Overview is now in the more menu; no persistent button to update
   }
 }
 
