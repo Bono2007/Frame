@@ -90,6 +90,12 @@ function updateUI() {
   if (pluginsPanel && !currentTool.supportsPlugins) {
     // Could hide or show a message - for now just leave it
   }
+
+  // Show skip-permissions toggle only for Claude Code
+  const skipPermsRow = document.getElementById('skip-permissions-row');
+  if (skipPermsRow) {
+    skipPermsRow.style.display = currentTool.id === 'claude' ? '' : 'none';
+  }
 }
 
 /**

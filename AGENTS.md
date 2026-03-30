@@ -1,8 +1,51 @@
-# Frame - Project Instructions
+# CLAUDE.md
 
-This project is managed with **Frame**. AI assistants should follow the rules below to keep documentation up to date.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 > **Note:** This file is named `AGENTS.md` to be AI-tool agnostic. A `CLAUDE.md` symlink is provided for Claude Code compatibility.
+
+---
+
+## Commands
+
+```bash
+npm run dev        # Watch-mode build + launch Electron (development)
+npm start          # One-time build + launch Electron
+npm run build      # Bundle renderer only (esbuild → dist/renderer.js)
+npm run watch      # Watch renderer bundle only
+npm run structure  # Regenerate STRUCTURE.json
+npm run dist:mac   # Package as macOS .dmg (requires signing identity)
+npm run dist:mac:unsigned  # Package without code signing
+```
+
+No test runner is configured. There are no lint scripts.
+
+---
+
+## Architecture
+
+Frame is an **Electron desktop app** split into three processes:
+
+### Main Process (`src/main/`)
+Runs in Node.js. Manages PTYs (node-pty), filesystem, and all IPC handlers. Each feature has its own manager file (e.g. `tasksManager.js`, `githubManager.js`). Entry point: `src/main/index.js` — calls `setupAllIPC()` which delegates to each manager's `setupIPC(win)`.
+
+### Renderer Process (`src/renderer/`)
+Browser context, **bundled by esbuild** into `dist/renderer.js`. No `require()` available — use `window.ipcRenderer` (Electron's `contextBridge` is not used; `nodeIntegration: true`). Entry point: `src/renderer/index.js`. Each UI panel is its own module (`tasksPanel.js`, `pluginsPanel.js`, etc.).
+
+### Shared (`src/shared/`)
+`ipcChannels.js` is the **single source of truth** for all IPC channel names — always import from here, never hardcode strings.
+
+### IPC Pattern
+```
+Renderer → Main:  ipcRenderer.send(IPC.CHANNEL, payload)
+Main → Renderer:  win.webContents.send(IPC.CHANNEL, data)
+Main → Renderer (reply): event.reply(IPC.CHANNEL, data)
+```
+
+### Key Conventions
+- New features require both a main-side manager (`src/main/`) and a renderer-side panel (`src/renderer/`), plus IPC constants in `src/shared/ipcChannels.js`
+- After adding/moving files, run `npm run structure` to update `STRUCTURE.json`
+- STRUCTURE.json is updated automatically by the pre-commit hook
 
 ---
 

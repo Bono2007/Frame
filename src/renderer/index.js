@@ -197,8 +197,10 @@ function setupButtonHandlers() {
 
         // Send start command for the selected AI tool
         const startCommand = aiToolSelector.getStartCommand();
+        const skipPerms = document.getElementById('toggle-skip-permissions')?.checked;
+        const fullCommand = skipPerms ? `${startCommand} --dangerously-skip-permissions` : startCommand;
         setTimeout(() => {
-          terminal.sendCommand(startCommand, newTerminalId);
+          terminal.sendCommand(fullCommand, newTerminalId);
         }, 1000);
       }
     }

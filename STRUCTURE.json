@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "Claude Code IDE - Module structure and IPC communication map",
-  "lastUpdated": "2026-03-26",
+  "lastUpdated": "2026-03-30",
   "architecture": {
     "type": "electron",
     "mainProcess": "src/main/index.js",
@@ -774,7 +774,7 @@
           "purpose": "Setup button click handlers"
         },
         "setupKeyboardShortcuts": {
-          "line": 244,
+          "line": 246,
           "purpose": "Setup keyboard shortcuts"
         }
       },
@@ -3337,22 +3337,22 @@
           "purpose": "Update UI to reflect current tool"
         },
         "getCurrentTool": {
-          "line": 98,
+          "line": 104,
           "purpose": "Get the current active tool"
         },
         "getStartCommand": {
-          "line": 105,
+          "line": 111,
           "purpose": "Get the start command for current tool"
         },
         "getCommand": {
-          "line": 112,
+          "line": 118,
           "params": [
             "action"
           ],
           "purpose": "Get a specific command for current tool"
         },
         "supportsFeature": {
-          "line": 120,
+          "line": 126,
           "params": [
             "feature"
           ],
