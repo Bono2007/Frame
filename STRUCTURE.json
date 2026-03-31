@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "Claude Code IDE - Module structure and IPC communication map",
-  "lastUpdated": "2026-03-30",
+  "lastUpdated": "2026-03-31",
   "architecture": {
     "type": "electron",
     "mainProcess": "src/main/index.js",
@@ -3609,33 +3609,33 @@
           "purpose": "Always passes -u to enable UTF-8 mode"
         },
         "createSession": {
-          "line": 118,
+          "line": 121,
           "params": [
             "sessionName",
             "cwd"
           ],
-          "purpose": "Create a new detached tmux session"
+          "purpose": "- status off  → hides the tmux status bar (not useful inside Frame)"
         },
         "sessionExists": {
-          "line": 129,
+          "line": 146,
           "params": [
             "sessionName"
           ],
           "purpose": "Check if a tmux session exists"
         },
         "killSession": {
-          "line": 142,
+          "line": 159,
           "params": [
             "sessionName"
           ],
           "purpose": "Kill a tmux session"
         },
         "listFrameSessions": {
-          "line": 154,
+          "line": 171,
           "purpose": "List all active Frame tmux sessions"
         },
         "sessionNameFor": {
-          "line": 171,
+          "line": 188,
           "params": [
             "terminalId"
           ],

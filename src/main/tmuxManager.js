@@ -111,14 +111,31 @@ function exec(args) {
 }
 
 /**
- * Create a new detached tmux session
+ * Create a new detached tmux session configured for use inside Frame.
+ * - mouse on   → scroll works properly instead of sending arrow keys
+ * - prefix None → frees Ctrl+B so Frame shortcuts reach the shell
+ * - status off  → hides the tmux status bar (not useful inside Frame)
  * @param {string} sessionName
  * @param {string} cwd - Working directory
  */
 function createSession(sessionName, cwd) {
   const { LANG } = utf8Env();
-  // -e passes env vars into the shell spawned inside the tmux session
   exec(['new-session', '-d', '-s', sessionName, '-c', cwd, '-e', `LANG=${LANG}`, '-e', `LC_ALL=${LANG}`]);
+
+  // Apply Frame-specific options. Failures are non-fatal (older tmux versions
+  // may not support every option).
+  const sessionOpts = [
+    ['mouse', 'on'],
+    ['prefix', 'None'],
+    ['status', 'off'],
+  ];
+  for (const [key, value] of sessionOpts) {
+    try {
+      exec(['set-option', '-t', sessionName, key, value]);
+    } catch {
+      // best-effort — ignore if unsupported
+    }
+  }
 }
 
 /**
